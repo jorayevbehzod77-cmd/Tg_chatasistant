@@ -21,7 +21,20 @@ load_dotenv()
 API_ID         = os.getenv("API_ID", "YOUR_API_ID")
 API_HASH       = os.getenv("API_HASH", "YOUR_API_HASH")
 GEMINI_KEY     = os.getenv("GEMINI_API_KEY", "YOUR_API_KEY")
-SESSION_STRING = os.getenv("SESSION_STRING", "")
+
+
+def _load_session_string() -> str:
+    """Sessiya matnini fayldan o'qiydi: Render yoki lokal."""
+    for path in ("/etc/secrets/session.txt", "session.txt"):
+        if os.path.exists(path):
+            with open(path, "r", encoding="utf-8") as f:
+                return f.read().strip()
+    raise FileNotFoundError(
+        "session.txt topilmadi! /etc/secrets/session.txt yoki lokal session.txt kerak."
+    )
+
+
+SESSION_STRING = _load_session_string()
 
 # ── Logging sozlamalari ─────────────────────────────────────────────────────
 logging.basicConfig(

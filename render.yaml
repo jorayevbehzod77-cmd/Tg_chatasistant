@@ -14,5 +14,6 @@ services:
         sync: false
       - key: GEMINI_API_KEY
         sync: false
-      - key: SESSION_STRING
-        sync: false
+    secretFiles:
+      - key: session.txt
+        filePath: /etc/secrets/session.txt
