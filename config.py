@@ -1,6 +1,6 @@
 """
 Konfiguratsiya moduli.
-Barcha muhim sozlamalarni .env faylidan o'qiydi va tekshiradi.
+Barcha sozlamalarni lokal .env faylidan o'qiydi va tekshiradi.
 """
 
 import os
@@ -29,8 +29,6 @@ class Settings:
     gemini_api_key: str
     model_name: str = "gemini-3.6-flash"
     max_history: int = 20
-    health_port: int = 10000
-    is_render: bool = False
 
 
 def _require(name: str) -> str:
@@ -55,36 +53,30 @@ def load_settings() -> Settings:
         print("[XATO] API_ID raqam bo'lishi kerak.")
         sys.exit(1)
 
-    # Render muhitida RENDER=true avtomatik o'rnatiladi
-    is_render = bool(os.getenv("RENDER", "").strip())
-
     return Settings(
         api_id=api_id_int,
         api_hash=api_hash,
         gemini_api_key=gemini_key,
-        is_render=is_render,
     )
 
 
 def load_session_string() -> str:
-    """Sessiya matnini fayldan o'qiydi."""
-    # Render muhitida: /etc/secrets/session.txt
-    # Lokal muhitda: session.txt
-    paths = ["/etc/secrets/session.txt", "session.txt"] if os.getenv("RENDER") else ["session.txt"]
+    """Sessiya matnini lokal session.txt faylidan o'qiydi."""
+    path = "session.txt"
 
-    for path in paths:
-        if os.path.exists(path):
-            content = open(path, "r", encoding="utf-8").read().strip()
-            if not content:
-                print(f"[XATO] {path} fayli topildi, lekin bo'sh!")
-                print("       get_session.py ni qayta ishga tushiring.")
-                sys.exit(1)
-            return content
+    if not os.path.exists(path):
+        print("[XATO] session.txt fayli topilmadi!")
+        print("       Avval quyidagi buyruqni bajaring:")
+        print()
+        print("         python create_session.py")
+        print()
+        print("       Bu sizning Telegram sessiyangizni session.txt fayliga saqlaydi.")
+        sys.exit(1)
 
-    print("[XATO] session.txt fayli topilmadi!")
-    print("       Avval quyidagi buyruqni bajaring:")
-    print()
-    print("         python get_session.py")
-    print()
-    print("       Bu sizning Telegram sessiyangizni session.txt fayliga saqlaydi.")
-    sys.exit(1)
+    content = open(path, "r", encoding="utf-8").read().strip()
+    if not content:
+        print("[XATO] session.txt fayli bo'sh!")
+        print("       create_session.py ni qayta ishga tushiring.")
+        sys.exit(1)
+
+    return content

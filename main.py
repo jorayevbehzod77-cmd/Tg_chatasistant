@@ -1,7 +1,7 @@
 """
 Telegram Userbot — Telethon + Google Gemini AI
 Kiruvchi shaxsiy xabarlarga avtomatik javob beradi.
-Barcha maxfiy kalitlar .env faylidan yoki Render env vars'dan o'qiladi.
+Barcha maxfiy kalitlar .env faylidan o'qiladi.
 """
 
 import logging

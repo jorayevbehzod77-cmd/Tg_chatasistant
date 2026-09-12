@@ -1,12 +1,10 @@
 """
-Telegram userbot moduli: Telethon klientini, xabar handlerini
-va Render uchun health-check serverini o'z ichiga oladi.
+Telegram userbot moduli: Telethon klientini va xabar handlerini boshqaradi.
 """
 
 import asyncio
 import logging
 
-from aiohttp import web
 from telethon import TelegramClient, events
 from telethon.sessions import StringSession
 
@@ -20,7 +18,6 @@ class UserBot:
     """Telegram klientini va unga bog'liq handlerlarni boshqaradi."""
 
     def __init__(self, settings: Settings, session_string: str, assistant: GeminiAssistant):
-        self._settings = settings
         self._assistant = assistant
         self._loop = asyncio.new_event_loop()
         asyncio.set_event_loop(self._loop)
@@ -53,29 +50,8 @@ class UserBot:
         await event.reply(answer)
         log.info("Javob [%s]: %s", user_id, answer[:80])
 
-    async def _run_health_server(self) -> None:
-        """Render uxlab qolmasligi uchun kichik HTTP server ishga tushiradi."""
-
-        async def health_handler(_request):
-            return web.Response(text="Bot is alive")
-
-        app = web.Application()
-        app.router.add_get("/", health_handler)
-        runner = web.AppRunner(app)
-        await runner.setup()
-        site = web.TCPSite(runner, "0.0.0.0", self._settings.health_port)
-        await site.start()
-        log.info("Health-check server ishga tushdi: http://0.0.0.0:%s", self._settings.health_port)
-
     async def start(self) -> None:
-        log.info("Userbot ishga tushmoqda …")
-
-        # Health-check server faqat Render muhitida ishga tushadi
-        if self._settings.is_render:
-            await self._run_health_server()
-        else:
-            log.info("Lokal muhit — health-check server o'chirilgan.")
-
+        log.info("Userbot ishga tushmoqda ...")
         await self._client.start()
 
         me = await self._client.get_me()
