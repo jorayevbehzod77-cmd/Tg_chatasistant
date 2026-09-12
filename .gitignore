@@ -1,4 +1,5 @@
 .env
 *.session
+session.txt
 __pycache__/
 *.pyc

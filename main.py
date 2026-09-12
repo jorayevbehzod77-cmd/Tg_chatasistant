@@ -23,12 +23,34 @@ API_HASH       = os.getenv("API_HASH", "YOUR_API_HASH")
 GEMINI_KEY     = os.getenv("GEMINI_API_KEY", "YOUR_API_KEY")
 
 
+def _validate_config():
+    """Barcha muhim sozlamalar to'g'ri ekanligini tekshiradi."""
+    errors = []
+    if API_ID == "YOUR_API_ID" or not API_ID.strip():
+        errors.append("API_ID sozlanmagan. .env yoki Render env vars'da belgilang.")
+    if API_HASH == "YOUR_API_HASH" or not API_HASH.strip():
+        errors.append("API_HASH sozlanmagan. .env yoki Render env vars'da belgilang.")
+    if GEMINI_KEY == "YOUR_API_KEY" or not GEMINI_KEY.strip():
+        errors.append("GEMINI_API_KEY sozlanmagan. .env yoki Render env vars'da belgilang.")
+    if errors:
+        raise SystemExit("\n".join(["[XATO] Konfiguratsiya xatolari:"] + errors))
+
+
+_validate_config()
+
+
 def _load_session_string() -> str:
     """Sessiya matnini fayldan o'qiydi: Render yoki lokal."""
     for path in ("/etc/secrets/session.txt", "session.txt"):
         if os.path.exists(path):
             with open(path, "r", encoding="utf-8") as f:
-                return f.read().strip()
+                content = f.read().strip()
+            if not content:
+                raise SystemExit(
+                    f"[XATO] {path} fayli topildi, lekin bo'sh! "
+                    "Fayl ichiga StringSession matnini joylashtiring."
+                )
+            return content
     raise FileNotFoundError(
         "session.txt topilmadi! /etc/secrets/session.txt yoki lokal session.txt kerak."
     )
