@@ -70,7 +70,12 @@ class UserBot:
     async def start(self) -> None:
         log.info("Userbot ishga tushmoqda …")
 
-        await self._run_health_server()
+        # Health-check server faqat Render muhitida ishga tushadi
+        if self._settings.is_render:
+            await self._run_health_server()
+        else:
+            log.info("Lokal muhit — health-check server o'chirilgan.")
+
         await self._client.start()
 
         me = await self._client.get_me()

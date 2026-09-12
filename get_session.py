@@ -1,8 +1,7 @@
 """
 Mavjud 'userbot_session.session' faylini o'qib,
-StringSession matniga aylantirib, ekranga chiqaradi.
-Bu matnni Render.com da session.txt sifatida yoki lokal session.txt
-faylida saqlang.
+StringSession matniga aylantirib, session.txt fayliga saqlaydi.
+Render.com uchun yoki lokal ishlatish uchun.
 """
 
 import asyncio
@@ -11,21 +10,28 @@ import sys
 
 from telethon import TelegramClient
 from telethon.sessions import StringSession
+from dotenv import load_dotenv
 
-from config import load_settings
+load_dotenv()
+
+API_ID   = os.getenv("API_ID", "YOUR_API_ID")
+API_HASH = os.getenv("API_HASH", "YOUR_API_HASH")
 
 SESSION_FILE = "userbot_session"
 
 
 async def main():
-    settings = load_settings()
-
+    # Sessiya fayli mavjudligini tekshirish
     if not os.path.exists(f"{SESSION_FILE}.session"):
         print(f"[XATO]  '{SESSION_FILE}.session' fayli topilmadi!")
-        print("   Avval main.py ni ishga tushirib, sessiyani yarating.")
+        print("   Avval Telethon orqali sessiya yarating:")
+        print()
+        print("   python -c \"from telethon.sync import TelegramClient; \\")
+        print(f"     TelegramClient('{SESSION_FILE}', {API_ID}, '{API_HASH}').start()\"")
         sys.exit(1)
 
-    client = TelegramClient(SESSION_FILE, settings.api_id, settings.api_hash)
+    # Fayl sessiyasidan klientni ochish
+    client = TelegramClient(SESSION_FILE, int(API_ID), API_HASH)
     await client.connect()
 
     if not await client.is_user_authorized():
@@ -33,18 +39,23 @@ async def main():
         await client.disconnect()
         sys.exit(1)
 
+    # StringSession ga aylantirish
     string_session = StringSession.save(client.session)
+
+    # session.txt fayliga saqlash
+    with open("session.txt", "w", encoding="utf-8") as f:
+        f.write(string_session)
 
     print()
     print("=" * 60)
-    print("  [OK]  SESSION_STRING tayyor!")
+    print("  [OK]  session.txt fayli yaratildi!")
     print("=" * 60)
     print()
-    print(string_session)
+    print("  Endi botni ishga tushirishingiz mumkin:")
+    print("    python main.py")
     print()
-    print("=" * 60)
-    print("  Yuqoridagi matnni session.txt fayliga (yoki Render'dagi")
-    print("  secret file /etc/secrets/session.txt ga) joylashtiring.")
+    print("  Render.com uchun: session.txt ichidagi matnni")
+    print("  Secret Files bo'limiga joylashtiring.")
     print("=" * 60)
     print()
 
