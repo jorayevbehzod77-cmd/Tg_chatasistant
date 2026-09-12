@@ -1,7 +1,8 @@
 """
 Mavjud 'userbot_session.session' faylini o'qib,
 StringSession matniga aylantirib, ekranga chiqaradi.
-Bu matnni Render.com da SESSION_STRING muhit o'zgaruvchisi sifatida ishlating.
+Bu matnni Render.com da session.txt sifatida yoki lokal session.txt
+faylida saqlang.
 """
 
 import asyncio
@@ -10,25 +11,21 @@ import sys
 
 from telethon import TelegramClient
 from telethon.sessions import StringSession
-from dotenv import load_dotenv
 
-load_dotenv()
-
-API_ID   = os.getenv("API_ID", "YOUR_API_ID")
-API_HASH = os.getenv("API_HASH", "YOUR_API_HASH")
+from config import load_settings
 
 SESSION_FILE = "userbot_session"
 
 
 async def main():
-    # Sessiya fayli mavjudligini tekshirish
+    settings = load_settings()
+
     if not os.path.exists(f"{SESSION_FILE}.session"):
         print(f"[XATO]  '{SESSION_FILE}.session' fayli topilmadi!")
         print("   Avval main.py ni ishga tushirib, sessiyani yarating.")
         sys.exit(1)
 
-    # Fayl sessiyasidan klientni ochish
-    client = TelegramClient(SESSION_FILE, int(API_ID), API_HASH)
+    client = TelegramClient(SESSION_FILE, settings.api_id, settings.api_hash)
     await client.connect()
 
     if not await client.is_user_authorized():
@@ -36,7 +33,6 @@ async def main():
         await client.disconnect()
         sys.exit(1)
 
-    # StringSession ga aylantirish
     string_session = StringSession.save(client.session)
 
     print()
@@ -47,8 +43,8 @@ async def main():
     print(string_session)
     print()
     print("=" * 60)
-    print("  Yuqoridagi matnni Render.com da")
-    print("  SESSION_STRING muhit o'zgaruvchisiga joylashtiring.")
+    print("  Yuqoridagi matnni session.txt fayliga (yoki Render'dagi")
+    print("  secret file /etc/secrets/session.txt ga) joylashtiring.")
     print("=" * 60)
     print()
 
