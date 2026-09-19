@@ -3,3 +3,7 @@
 session.txt
 __pycache__/
 *.pyc
+*.db
+*.db-journal
+*.db-wal
+*.db-shm

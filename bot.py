@@ -47,6 +47,7 @@ class UserBot:
 
         answer = await self._assistant.reply(user_id, user_text)
 
+        await asyncio.sleep(15)
         await event.reply(answer)
         log.info("Javob [%s]: %s", user_id, answer[:80])
 
